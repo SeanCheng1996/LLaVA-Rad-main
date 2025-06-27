@@ -8,18 +8,18 @@ model_path=microsoft/llava-rad
 
 model_base="${1:-$model_base}"
 model_path="${2:-$model_path}"
-prediction_dir="${3:-results/llavarad_MIMIC}"
+prediction_dir="${3:-results/llavarad_IUXRay}"
 prediction_file=$prediction_dir/test
 
 run_name="${4:-llavarad}"
 
 
 # query_file=/PATH_TO/physionet.org/files/llava-rad-mimic-cxr-annotation/1.0.0/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
-query_file=/data/sc159/data/MIMIC_III/llava_rad/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
+query_file=/data/sc159/data/IU_Xray_raw/processed/test_llavarad_format.json
 
 # image_folder=/PATH_TO/physionet.org/files/mimic-cxr-jpg/2.0.0/files
-image_folder=/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files
-loader="mimic_test_findings"
+image_folder=/data/sc159/data/IU_Xray_raw/images/images_normalized
+loader="iuxray_test_findings"
 conv_mode="v1"
 
 CHUNKS=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)

@@ -190,10 +190,27 @@ def data_loader_mimic_reason_findings(data_path, split):
     return ret
 
 
+def data_loader_IUXRay_findings(data_path, split):
+    logging.info(f"using the IUXray loader: IUXRay {split}.")
+    with open(data_path) as f:
+        dataset = json.load(f)
+    ret = []
+    for d in dataset:
+        # Skip empty findings
+        if not isinstance(d["conversations"][1]["value"], str):
+            continue
+        if d['view'] not in ('AP', 'PA', 'Frontal'):
+            continue
+        ret.append(d)
+    logging.info(f"loaded {len(ret)}/{len(dataset)} samples.")
+    return ret
+
+
 data_loaders = {
     "default": data_loader_default,
     "mimic_train_findings": lambda x: data_loader_mimic_reason_findings(x, "train"),
     "mimic_test_findings": lambda x: data_loader_mimic_reason_findings(x, "test"),
     "mimic_cxr_all_frontal_findings": data_loader_mimic_cxr_all_frontal_findings,
     "mimic_cxr_all_views_findings": data_loader_mimic_cxr_all_views_findings,
+    "iuxray_test_findings": lambda x: data_loader_IUXRay_findings(x, "test"),
 }

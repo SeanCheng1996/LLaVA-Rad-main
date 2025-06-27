@@ -9,6 +9,7 @@ import torch
 import fire
 from tqdm import tqdm
 from PIL import Image, ImageFile
+
 # https://stackoverflow.com/questions/12984426/pil-ioerror-image-file-truncated-with-big-images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -22,7 +23,7 @@ from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_S
 def split_list(lst, n):
     """Split a list into n (roughly) equal-sized chunks"""
     chunk_size = math.ceil(len(lst) / n)  # integer division
-    return [lst[i:i+chunk_size] for i in range(0, len(lst), chunk_size)]
+    return [lst[i:i + chunk_size] for i in range(0, len(lst), chunk_size)]
 
 
 def get_chunk(lst, n, k):
@@ -72,11 +73,9 @@ def eval_model(
         batch_size: int = 8,
         loader: str = "default",
         group_by_length: bool = False,
-    ):
+):
     os.makedirs("logs", exist_ok=True)
     logger = build_logger("model_mimic_cxr", f"logs/model_mimic_cxr_{chunk_idx}.log")
-
-
 
     # load model
     disable_torch_init()
@@ -113,7 +112,7 @@ def eval_model(
             else:
                 q = DEFAULT_IMAGE_TOKEN + '\n' + q
 
-            conv= conv_templates[conv_mode].copy()
+            conv = conv_templates[conv_mode].copy()
             conv.append_message(conv.roles[0], q)
             conv.append_message(conv.roles[1], None)
             prompt = conv.get_prompt()
@@ -128,7 +127,6 @@ def eval_model(
             batch_images.append(image_tensor)
 
         stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
-        
 
         with torch.inference_mode():
             batch_output_ids = model.generate(
@@ -146,7 +144,7 @@ def eval_model(
             )
 
         for query, prompt, outputs, input_ids, output_ids in zip(
-            batch_queries, batch_prompts, batch_outputs, batch_input_ids, batch_output_ids):
+                batch_queries, batch_prompts, batch_outputs, batch_input_ids, batch_output_ids):
             q = query["conversations"][0]["value"]
             ref = query["conversations"][1]["value"]
             input_token_len = input_ids.shape[0]
@@ -166,7 +164,7 @@ def eval_model(
 
             pred_file.write(json.dumps({"id": query["id"], "query": q, "reference": ref, "prediction": outputs}) + "\n")
             pred_file.flush()
-        
+
         log_prediction = False
 
     pred_file.close()
@@ -175,10 +173,10 @@ def eval_model(
 if __name__ == "__main__":
     fire.Fire(eval_model)
     # eval_model(
-    #     query_file="/data/sc159/data/MIMIC_III/llava_rad/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v1.json",
-    #     image_folder="/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
+    #     query_file="/data/sc159/data/IU_Xray_raw/processed/test_llavarad_format.json",
+    #     image_folder="/data/sc159/data/IU_Xray_raw/images/images_normalized",
     #     conv_mode="v1",
-    #     prediction_file="results/llavarad_MIMIC/test_0.jsonl",
+    #     prediction_file="results/llavarad_IUXRay/test_0.jsonl",
     #     model_path="microsoft/llava-rad",
     #     model_base="lmsys/vicuna-7b-v1.5",
     #     load_8bit=False,
@@ -190,6 +188,6 @@ if __name__ == "__main__":
     #     chunk_idx=0,
     #     num_chunks=1,
     #     batch_size=8,
-    #     loader="mimic_test_findings",
+    #     loader="iuxray_test_findings",
     #     group_by_length=True,
     # )

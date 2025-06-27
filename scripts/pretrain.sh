@@ -6,10 +6,12 @@ model_base=lmsys/vicuna-7b-v1.5
 output_dir="${1:-./checkpoints}"
 
 # data_path=/PATH_TO/physionet.org/files/llava-rad-mimic-cxr-annotation/1.0.0/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
+data_path=/data/sc159/data/MIMIC_III/llava_rad/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
 
 loader="mimic_train_findings"
 
 # image_folder=/PATH_TO/physionet.org/files/mimic-cxr-jpg/2.0.0/files
+image_folder=/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files
 
 
 ################## Run name ##################
