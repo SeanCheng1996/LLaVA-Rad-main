@@ -20,8 +20,8 @@ vision_tower_config="llava/model/multimodal_encoder/open_clip_encoder/model_conf
 vision_tower_checkpoint="biomedclipcxr_518_checkpoint.pt" 
 
 epoch="${2:-1}"
-bsz="${3:-32}"
-grad_acc="${4:-2}"
+bsz="${3:-16}"
+grad_acc="${4:-16}"
 lr="1e-3"
 schedule="pt-${epoch}e"
 run_name="${vision_tower}-${schedule}-${lr}-$(date +%Y%m%d%H%M%S)"
