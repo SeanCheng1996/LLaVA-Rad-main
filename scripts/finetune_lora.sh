@@ -9,6 +9,7 @@ model_base=lmsys/vicuna-7b-v1.5
 output_dir="${1:-./checkpoints}"
 
 # PROJECTOR="/PATH_TO/mm_projector.bin" # generated using pretrain.sh
+PROJECTOR="/data/sc159/LLaVARad/checkpoints/biomedclip_cxr_518-pt-1e-1e-3-20250628005426/mm_projector.bin"
 vision_tower="biomedclip_cxr_518"
 vision_tower_config="llava/model/multimodal_encoder/open_clip_encoder/model_configs/biomedclip_cxr_518.json"
 vision_tower_checkpoint="biomedclipcxr_518_checkpoint.pt"
@@ -17,13 +18,15 @@ vision_tower_checkpoint="biomedclipcxr_518_checkpoint.pt"
 
 ################## Data ##################
 # data_path=/PATH_TO/physionet.org/files/llava-rad-mimic-cxr-annotation/1.0.0/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
+data_path=/data/sc159/data/MIMIC_III/llava_rad/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
 loader="mimic_train_findings"
 # image_folder=/PATH_TO/physionet.org/files/mimic-cxr-jpg/2.0.0/files
+image_folder=/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files
 ################## Data ##################
 
 ################## Run name ##################
 epoch="${2:-3}"
-bsz="${3:-16}"
+bsz="${3:-8}"
 lr="1e-4"
 schedule="lora-${epoch}e"
 export run_name="${vision_tower}-${schedule}-${lr}-$(date +%Y%m%d%H%M%S)"
@@ -55,7 +58,7 @@ WANDB_PROJECT="llava" WANDB_RUN_ID="llava-ft-$(date +%Y%m%d%H%M%S)" WANDB_RUN_GR
     --num_train_epochs ${epoch} \
     --per_device_train_batch_size ${bsz} \
     --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 1 \
+    --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 50000 \
