@@ -4,6 +4,7 @@ from openai import OpenAI
 import requests
 import os
 from glob import glob
+import time
 
 def download_file(url, save_path):
     try:
@@ -23,8 +24,10 @@ def download_file(url, save_path):
 
 
 if __name__ == '__main__':
-    for batch_id_path in glob("/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/*_batch_batch_id.txt"):
+    for batch_id_path in glob("/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/train*_batch_batch_id.txt"):
     # batch_id_path = "/data/sc159/LLaVARad/MyData/ReportProcess/organ_labels/prompts/valid_prompts_1000_2000_batch_batch_id.txt"
+        print("=" * 10)
+        print(batch_id_path)
 
         with open(batch_id_path, 'r') as f:
             content = f.readline().strip()
@@ -40,11 +43,13 @@ if __name__ == '__main__':
 
         batch = client.batches.retrieve(batch_id)
         print(batch)
-        print("="*10)
+
 
         if batch.status == 'completed':
             print("downloading")
             download_file(batch.output_file_id, batch_id_path.replace("batch_batch_id.txt", "response.jsonl"))
         else:
             print("Not finished, status:", batch.status)
+
+        # time.sleep(1)
 

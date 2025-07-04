@@ -102,11 +102,11 @@ if __name__ == '__main__':
     system_prompt = get_system_prompt(
         f"/data/sc159/LLaVARad/MyData/ReportProcess/{system_prompt_cate}/report_prompt.txt")
 
-    split = "valid"
+    split = "train"
     id_report_json = extractReport(
         f"/data/sc159/data/MIMIC_III/llava_rad/chat_{split}_MIMIC_CXR_all_gpt4extract_rulebased_v1.json")
 
-    interval = 1000
+    interval = 5000
     for i in tqdm(range(0, len(id_report_json), interval), desc="Processing batches"):
         prompts = generate_prompt(id_report_json, system_prompt, start_index=i, rows=interval)
         dest_file = f"/data/sc159/LLaVARad/MyData/ReportProcess/{system_prompt_cate}/prompts/{split}_prompts_{i}_{i + interval}.jsonl"
