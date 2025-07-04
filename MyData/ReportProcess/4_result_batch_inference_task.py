@@ -24,7 +24,7 @@ def download_file(url, save_path):
 
 
 if __name__ == '__main__':
-    for batch_id_path in glob("/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/train*_batch_batch_id.txt"):
+    for batch_id_path in glob("/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/test*_batch_batch_id.txt"):
     # batch_id_path = "/data/sc159/LLaVARad/MyData/ReportProcess/organ_labels/prompts/valid_prompts_1000_2000_batch_batch_id.txt"
         print("=" * 10)
         print(batch_id_path)

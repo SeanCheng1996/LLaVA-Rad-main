@@ -3,7 +3,7 @@ from glob import glob
 import os
 
 for batch_input_file_id_path in glob(
-        "/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/train*_batch_file_id.txt"):
+        "/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/test*_batch_file_id.txt"):
     # for batch_input_file_id_path in glob("/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/*_batch_file_id.txt"):
     # batch_input_file_id_path = "/data/sc159/LLaVARad/MyData/ReportProcess/organ_labels/prompts/valid_prompts_1000_2000_batch_file_id.txt"
 

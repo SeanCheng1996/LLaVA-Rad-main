@@ -59,5 +59,5 @@ def extract_response_file(file_path):
 
 if __name__ == '__main__':
     responses = extract_response_file(
-        "/data/sc159/LLaVARad/MyData/ReportProcess/prompts/valid_prompts_1000_2000_response.jsonl")
+        "/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/test_prompts_0_5000_response.jsonl")
     print(responses)
