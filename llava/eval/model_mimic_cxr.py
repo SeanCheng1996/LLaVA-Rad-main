@@ -80,7 +80,10 @@ def eval_model(
 
     # load model
     disable_torch_init()
-    model_path = os.path.expanduser(model_path)
+    if model_path.startswith("/"):
+        model_path=model_path
+    else:
+        model_path = os.path.expanduser(model_path)
     model_name = get_model_name_from_path(model_path)
     if not model_name.startswith("llavarad"):
         # "llava" needs to be in model_name to correctly load the model.
@@ -178,8 +181,8 @@ if __name__ == "__main__":
     #     query_file="/data/sc159/data/MIMIC_III/llava_rad/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v1.json",
     #     image_folder="/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
     #     conv_mode="v1",
-    #     prediction_file="results/llavarad_MIMIC/test_0.jsonl",
-    #     model_path="microsoft/llava-rad",
+    #     prediction_file="results/ori_llavarad/llavarad_MIMIC/test_0.jsonl",
+    #     model_path="/data/sc159/LLaVARad/checkpoints/llavarad_biomedclip_cxr_518-lora-3e-1e-4-20250629201630",
     #     model_base="lmsys/vicuna-7b-v1.5",
     #     load_8bit=False,
     #     load_4bit=False,
