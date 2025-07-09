@@ -30,9 +30,9 @@ echo $run_name > run_name
 
 # Global batch size should be 256
 
-WANDB_RUN_ID="llava-pt-$(date +%Y%m%d%H%M%S)" WANDB_PROJECT="llava" WANDB_RUN_GROUP=pre-train \
-    deepspeed llava/train/train_mem.py \
-    --deepspeed ./scripts/zero2.json \
+WANDB_RUN_ID="llava-pt-$(date +%Y%m%d%H%M%S)" WANDB_PROJECT="llava_topic_seg" WANDB_RUN_GROUP=pre-train \
+    deepspeed llava/train/train_mem_forTopicSeg.py \
+    --deepspeed ./MyScripts/zero2.json \
     --model_name_or_path ${model_base} \
     --version plain \
     --data_path ${data_path} \
