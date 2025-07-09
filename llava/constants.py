@@ -42,5 +42,5 @@ ORGAN_MASK_MAPPING = {
     "other": ["all"],
 }
 
-# BAD_IMAGE_PATHS = "/data/sc159/data/MIMIC_III/segmentation_single/bad_image_path.txt"
-BAD_IMAGE_PATHS = "/work/devika/data/MIMIC_III/MIMIC_III/segmentation_single/bad_image_path.txt"  # todo
+BAD_IMAGE_PATHS = "/data/sc159/data/MIMIC_III/segmentation_single/bad_image_path.txt" #todo, sirius
+# BAD_IMAGE_PATHS = "/work/devika/data/MIMIC_III/MIMIC_III/segmentation_single/bad_image_path.txt"  # todo, rapid

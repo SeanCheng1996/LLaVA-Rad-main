@@ -43,6 +43,9 @@ from PIL import Image, ImageFile
 import cv2
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from multiprocessing import Pool
+import traceback
+from functools import partial
 
 # https://stackoverflow.com/questions/12984426/pil-ioerror-image-file-truncated-with-big-images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -76,7 +79,7 @@ class ModelArguments:
 class DataArguments:
     data_path: str = field(default=None,
                            metadata={"help": "Path to the training data."})
-    mask_path: str = field(default=None, metadata={"help": "Path to mask data."}) # for_topic
+    mask_path: str = field(default=None, metadata={"help": "Path to mask data."})  # for_topic
     loader: str = "default"
     lazy_preprocess: bool = False
     is_multimodal: bool = False
@@ -688,9 +691,9 @@ class LazySupervisedDataset(Dataset):
             image = open_image_with_retry(os.path.join(image_folder, image_file))  # H*W, not a fixed shape
 
             # get mask
-            mask_labels=ORGAN_MASK_MAPPING[self.list_data_dict[i]['topic']]
+            mask_labels = ORGAN_MASK_MAPPING[self.list_data_dict[i]['topic']]
             if "all" in mask_labels:
-                masked_img=image
+                masked_img = image
             else:
                 mask_json = os.path.join(self.data_args.mask_path, image_file).replace('.jpg', '.pkl')
                 with open(mask_json, 'rb') as f:
@@ -698,7 +701,7 @@ class LazySupervisedDataset(Dataset):
                 # get mask for specific organs
                 merged_mask = np.zeros_like(next(iter(mask_json.values())), dtype=bool)
                 for cur_organ in mask_labels:
-                    mask_arr=mask_json[cur_organ]
+                    mask_arr = mask_json[cur_organ]
                     # post process mask: island removal
                     labeled, num_features = ndimage.label(mask_arr)
                     sizes = ndimage.sum(mask_arr, labeled, range(num_features + 1))
@@ -753,6 +756,8 @@ class LazySupervisedDataset(Dataset):
             # image does not exist in the data, but the model is multimodal
             crop_size = self.data_args.image_processor.crop_size
             data_dict['image'] = torch.zeros(3, crop_size['height'], crop_size['width'])
+
+        data_dict['path'] = image_file
         return data_dict
 
 
@@ -782,7 +787,7 @@ class DataCollatorForSupervisedDataset(object):
 
         if 'image' in instances[0]:
             # images = [instance['image'] for instance in instances]
-            images = [] # for_topic
+            images = []  # for_topic
             for instance in instances:
                 images.append(instance['image'])
                 images.append(instance['masked_image'])
@@ -807,8 +812,58 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
                 data_collator=data_collator)
 
 
-def train():
-    global local_rank
+def process_item(ix):  # 新增 trainset 参数
+    try:
+        data_dict = trainset[ix]
+        return f"----------\n{ix}\n{data_dict['path']}\n"
+    except Exception as e:
+        return f"----------\n{ix}\nERROR: {str(e)}\n"
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.argv = [
+        "train_forDebug.py",  # 脚本名（占位，通常会被忽略）
+        "--model_name_or_path", "lmsys/vicuna-7b-v1.5",
+        "--version", "v1",
+        "--data_path",
+        "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v2.json",  # todo
+        "--mask_path", "/data/sc159/data/MIMIC_III/segmentation_single",
+        # for_topic, parent folder of "/p10/123/11/a.pkl"
+        "--loader", "mimic_topic_findings",  # for_topic todo
+        "--image_folder", "/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
+        "--vision_tower", "biomedclip_cxr_518",
+        "--vision_tower_config",
+        "llava/model/multimodal_encoder/open_clip_encoder/model_configs/biomedclip_cxr_518.json",
+        "--vision_tower_checkpoint", "biomedclipcxr_518_checkpoint.pt",
+        "--mm_projector_type", "mlp2x_gelu",
+        "--tune_mm_mlp_adapter",
+        "--mm_vision_select_layer", "-2",
+        "--bf16",
+        "--output_dir", "./checkpoints/forDebug",  # 你可以在这里设置自定义输出目录
+        "--num_train_epochs", "1",  # 可调参数
+        "--per_device_train_batch_size", "2",  # 可调参数
+        "--per_device_eval_batch_size", "2",
+        "--gradient_accumulation_steps", "1",  # 可调参数
+        "--evaluation_strategy", "no",
+        "--save_strategy", "steps",
+        "--save_steps", "1",
+        "--save_total_limit", "1",
+        "--learning_rate", "1e-3",
+        "--weight_decay", "0.",
+        "--warmup_ratio", "0.03",
+        "--lr_scheduler_type", "cosine",
+        "--logging_steps", "1",
+        "--tf32", "True",
+        "--model_max_length", "2048",
+        "--gradient_checkpointing",
+        "--dataloader_num_workers", "2",
+        "--lazy_preprocess",
+        "--report_to", "wandb",
+        "--run_name", "your_run_name",  # 可以自定义
+        "--deepspeed", "/data/sc159/LLaVARad/scripts/zero2.json"
+    ]
 
     parser = transformers.HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments))
@@ -819,6 +874,7 @@ def train():
     bnb_model_from_pretrained_args = {}
     if training_args.bits in [4, 8]:
         from transformers import BitsAndBytesConfig
+
         bnb_model_from_pretrained_args.update(dict(
             device_map={"": training_args.device},
             load_in_4bit=training_args.bits == 4,
@@ -863,6 +919,7 @@ def train():
 
     if training_args.bits in [4, 8]:
         from peft import prepare_model_for_kbit_training
+
         model.config.torch_dtype = (
             torch.float32 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=training_args.gradient_checkpointing)
@@ -874,10 +931,12 @@ def train():
             def make_inputs_require_grad(module, input, output):
                 output.requires_grad_(True)
 
+
             model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
 
     if training_args.lora_enable:
         from peft import LoraConfig, get_peft_model
+
         lora_config = LoraConfig(
             r=training_args.lora_r,
             lora_alpha=training_args.lora_alpha,
@@ -960,97 +1019,13 @@ def train():
         model.config.mm_use_im_patch_token = model_args.mm_use_im_patch_token
         model.initialize_vision_tokenizer(model_args, tokenizer=tokenizer)
 
-    if training_args.bits in [4, 8]:
-        from peft.tuners.lora import LoraLayer
-        for name, module in model.named_modules():
-            if isinstance(module, LoraLayer):
-                if training_args.bf16:
-                    module = module.to(torch.bfloat16)
-            if 'norm' in name:
-                module = module.to(torch.float32)
-            if 'lm_head' in name or 'embed_tokens' in name:
-                if hasattr(module, 'weight'):
-                    if training_args.bf16 and module.weight.dtype == torch.float32:
-                        module = module.to(torch.bfloat16)
-
     data_module = make_supervised_data_module(tokenizer=tokenizer,
                                               data_args=data_args)
-    trainer = LLaVATrainer(model=model,
-                           tokenizer=tokenizer,
-                           args=training_args,
-                           **data_module)
 
-    # cur_batch = next(iter(trainer.get_train_dataloader()))
-    # model = model.to("cuda")
-    # res_eg = model(**cur_batch)
-
-
-    if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
-        trainer.train(resume_from_checkpoint=True)
-    else:
-        trainer.train()
-    trainer.save_state()
-
-    model.config.use_cache = True
-
-    if training_args.lora_enable:
-        state_dict = get_peft_state_maybe_zero_3(
-            model.named_parameters(), training_args.lora_bias
-        )
-        non_lora_state_dict = get_peft_state_non_lora_maybe_zero_3(
-            model.named_parameters()
-        )
-        if training_args.local_rank == 0 or training_args.local_rank == -1:
-            model.config.save_pretrained(training_args.output_dir)
-            model.save_pretrained(training_args.output_dir, state_dict=state_dict)
-            torch.save(non_lora_state_dict, os.path.join(training_args.output_dir, 'non_lora_trainables.bin'))
-    else:
-        safe_save_model_for_hf_trainer(trainer=trainer,
-                                       output_dir=training_args.output_dir)
-
-
-if __name__ == "__main__":
-    # import sys
-    #
-    # sys.argv = [
-    #     "train_forDebug.py",  # 脚本名（占位，通常会被忽略）
-    #     "--model_name_or_path", "lmsys/vicuna-7b-v1.5",
-    #     "--version", "v1",
-    #     "--data_path",
-    #     "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json",  # todo
-    #     "--mask_path", "/data/sc159/data/MIMIC_III/segmentation_single",  # for_topic, parent folder of "/p10/123/11/a.pkl"
-    #     "--loader", "mimic_topic_findings",  # for_topic todo
-    #     "--image_folder", "/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
-    #     "--vision_tower", "biomedclip_cxr_518",
-    #     "--vision_tower_config",
-    #     "llava/model/multimodal_encoder/open_clip_encoder/model_configs/biomedclip_cxr_518.json",
-    #     "--vision_tower_checkpoint", "biomedclipcxr_518_checkpoint.pt",
-    #     "--mm_projector_type", "mlp2x_gelu",
-    #     "--tune_mm_mlp_adapter",
-    #     "--mm_vision_select_layer", "-2",
-    #     "--bf16",
-    #     "--output_dir", "./checkpoints/forDebug",  # 你可以在这里设置自定义输出目录
-    #     "--num_train_epochs", "1",  # 可调参数
-    #     "--per_device_train_batch_size", "2",  # 可调参数
-    #     "--per_device_eval_batch_size", "2",
-    #     "--gradient_accumulation_steps", "1",  # 可调参数
-    #     "--evaluation_strategy", "no",
-    #     "--save_strategy", "steps",
-    #     "--save_steps", "1",
-    #     "--save_total_limit", "1",
-    #     "--learning_rate", "1e-3",
-    #     "--weight_decay", "0.",
-    #     "--warmup_ratio", "0.03",
-    #     "--lr_scheduler_type", "cosine",
-    #     "--logging_steps", "1",
-    #     "--tf32", "True",
-    #     "--model_max_length", "2048",
-    #     "--gradient_checkpointing",
-    #     "--dataloader_num_workers", "2",
-    #     "--lazy_preprocess",
-    #     "--report_to", "wandb",
-    #     "--run_name", "your_run_name",  # 可以自定义
-    #     "--deepspeed", "/data/sc159/LLaVARad/scripts/zero2.json"
-    # ]
-
-    train()
+    trainset = data_module['train_dataset']
+    with open("/data/sc159/LLaVARad/dataset_check.txt", 'w') as f:
+        for ix in tqdm(range(len(trainset))):
+            try:
+                data_dict = trainset[ix]
+            except Exception as e:
+                print(f"----------\n{ix}\nERROR: {str(e)}\n", file=f)
