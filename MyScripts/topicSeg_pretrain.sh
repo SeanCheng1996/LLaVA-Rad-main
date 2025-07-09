@@ -6,12 +6,14 @@ model_base=lmsys/vicuna-7b-v1.5
 output_dir="${1:-./checkpoints}"
 
 # data_path=/PATH_TO/physionet.org/files/llava-rad-mimic-cxr-annotation/1.0.0/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
-data_path=/data/sc159/data/MIMIC_III/llava_rad/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
+#data_path=/data/sc159/data/MIMIC_III/llava_rad/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json # todo, sirius
+data_path=/work/devika/data/MIMIC_III/MIMIC_III/llava_rad_topic/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v2.json #todo, rapid
 
-loader="mimic_train_findings"
+loader="mimic_topic_findings"
 
 # image_folder=/PATH_TO/physionet.org/files/mimic-cxr-jpg/2.0.0/files
-image_folder=/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files
+#image_folder=/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files # todo, sirius
+image_folder=/work/devika/data/MIMIC_III/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files # todo, rapid
 
 
 ################## Run name ##################
@@ -21,7 +23,8 @@ vision_tower_checkpoint="biomedclipcxr_518_checkpoint.pt"
 
 epoch="${2:-1}"
 bsz="${3:-16}"
-grad_acc="${4:-16}"
+#grad_acc="${4:-8}" # todo, sirius
+grad_acc="${4:-4}" # todo, rapid
 lr="1e-3"
 schedule="pt-${epoch}e"
 run_name="${vision_tower}-${schedule}-${lr}-$(date +%Y%m%d%H%M%S)"
@@ -34,7 +37,7 @@ WANDB_RUN_ID="llava-pt-$(date +%Y%m%d%H%M%S)" WANDB_PROJECT="llava_topic_seg" WA
     deepspeed llava/train/train_mem_forTopicSeg.py \
     --deepspeed ./MyScripts/zero2.json \
     --model_name_or_path ${model_base} \
-    --version plain \
+    --version v1 \
     --data_path ${data_path} \
     --loader ${loader} \
     --image_folder ${image_folder} \
