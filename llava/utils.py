@@ -218,7 +218,7 @@ def data_loader_mimic_topic_findings(data_path, split):
         d['conversations'] = d['conversations'][:2]
 
         ret.append(d)
-    logging.info(f"loaded {len(ret)}/{len(dataset)} samples.")
+    logging.info(f"loaded {len(ret)}/{len(dataset)} samples. from utils")
     return ret
 
 

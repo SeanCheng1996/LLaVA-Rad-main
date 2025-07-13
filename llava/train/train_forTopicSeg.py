@@ -980,6 +980,9 @@ def train():
                            args=training_args,
                            **data_module)
 
+    for cur_batch in tqdm(trainer.get_train_dataloader(), total=len(trainer.get_train_dataloader())):
+        print(cur_batch.keys())
+
     # cur_batch = next(iter(trainer.get_train_dataloader()))
     # model = model.to("cuda")
     # res_eg = model(**cur_batch)
@@ -1017,7 +1020,7 @@ if __name__ == "__main__":
     #     "--model_name_or_path", "lmsys/vicuna-7b-v1.5",
     #     "--version", "v1",
     #     "--data_path",
-    #     "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json",  # todo
+    #     "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v2.json",  # todo
     #     "--mask_path", "/data/sc159/data/MIMIC_III/segmentation_single",  # for_topic, parent folder of "/p10/123/11/a.pkl"
     #     "--loader", "mimic_topic_findings",  # for_topic todo
     #     "--image_folder", "/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",

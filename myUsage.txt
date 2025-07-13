@@ -1,0 +1,35 @@
+# 1. Test MLP, topicSeg
+
+I added a new file llava/eval/model_mimic_cxr_topicSeg.py.
+
+> make sure the checkpoint folder start with "llava", not "llavarad" or something else.
+Then it will load the modelBase plus the trained MLP layer.
+It will also load the image and the segmented image, in sequential.
+So, the input will have length x and image will have length 2x.
+It's becaue the input id will have two <image> token, the model will replace the <image> token with actual image embedding.
+
+> check the llava/eval/model_mimic_cxr_topicSeg.py
+In the main function, if the fire.Fire(eval_model) is commented out?
+This line is to accept shell parameters.
+The following is for debugging.
+
+>Better first debug to see the context_len.
+under llava/model/builder.py line 155
+
+> use MyScripts/eval_topicSeg_onlyMLP.sh
+check model_base, model_path, prediction_dir, query_file, image_folder, mask_path, loader.
+check which py file it is calling, should be llava.eval.model_mimic_cxr_topicSeg
+
+# 2. Test MLP, ori_llavarad
+
+> make sure the checkpoint folder start with "llava", not "llavarad" or something else.
+Then it will load the modelBase plus the trained MLP layer.
+
+> check the llava/eval/model_mimic_cxr.py
+In the main function, if the fire.Fire(eval_model) is commented out?
+This line is to accept shell parameters.
+The following is for debugging.
+
+> use MyScripts/eval_topicSeg_onlyMLP.sh
+check model_base, model_path, prediction_dir, query_file, image_folder, mask_path, loader.
+check which py file it is calling, should be llava.eval.model_mimic_cxr
