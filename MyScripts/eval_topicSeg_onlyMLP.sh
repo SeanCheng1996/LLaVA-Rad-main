@@ -5,18 +5,18 @@ set -o pipefail
 
 model_base=lmsys/vicuna-7b-v1.5
 #model_path=microsoft/llava-rad
-model_path=/data/sc159/LLaVARad/checkpoints/llava_biomedclip_cxr_518-pt-1e-1e-3-20250628005426/
+model_path=/data/sc159/LLaVARad/checkpoints/topic_seg/llava_biomedclip_cxr_518-pt-1e-1e-3-20250710031958
 
 model_base="${1:-$model_base}"
 model_path="${2:-$model_path}"
-prediction_dir="${3:-results/ori_llavarad/llavarad_MIMIC_onlyMLP}"
+prediction_dir="${3:-results/topic_seg/llavarad_MIMIC_onlyMLP}"
 prediction_file=$prediction_dir/test
 
 run_name="${4:-llavarad}"
 
 
 # query_file=/PATH_TO/physionet.org/files/llava-rad-mimic-cxr-annotation/1.0.0/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
-query_file=/data/sc159/data/MIMIC_III/llava_rad/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v1.json
+query_file=/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v3.json
 
 # image_folder=/PATH_TO/physionet.org/files/mimic-cxr-jpg/2.0.0/files
 image_folder=/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files

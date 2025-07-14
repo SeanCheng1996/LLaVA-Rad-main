@@ -206,24 +206,24 @@ def eval_model(
 
 
 if __name__ == "__main__":
-    # fire.Fire(eval_model)
-    eval_model(
-        query_file="/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v3.json",
-        image_folder="/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
-        mask_path="/data/sc159/data/MIMIC_III/segmentation_single",
-        conv_mode="v1",
-        prediction_file="results/ori_llavarad/llavarad_MIMIC_onlyMLP/test_0.jsonl",
-        model_path="/data/sc159/LLaVARad/checkpoints/llava_biomedclip_cxr_518-pt-1e-1e-3-20250628005426",
-        model_base="lmsys/vicuna-7b-v1.5",
-        load_8bit=False,
-        load_4bit=False,
-        device="cuda",
-        temperature=0,
-        top_p=None,
-        num_beams=1,
-        chunk_idx=0,
-        num_chunks=1,
-        batch_size=8,
-        loader="mimic_topic_findings",
-        group_by_length=True,
-    )
+    fire.Fire(eval_model)
+    # eval_model(
+    #     query_file="/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v3.json",
+    #     image_folder="/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
+    #     mask_path="/data/sc159/data/MIMIC_III/segmentation_single",
+    #     conv_mode="v1",
+    #     prediction_file="results/ori_llavarad/llavarad_MIMIC_onlyMLP/test_0.jsonl",
+    #     model_path="/data/sc159/LLaVARad/checkpoints/llava_biomedclip_cxr_518-pt-1e-1e-3-20250628005426",
+    #     model_base="lmsys/vicuna-7b-v1.5",
+    #     load_8bit=False,
+    #     load_4bit=False,
+    #     device="cuda",
+    #     temperature=0,
+    #     top_p=None,
+    #     num_beams=1,
+    #     chunk_idx=0,
+    #     num_chunks=1,
+    #     batch_size=8,
+    #     loader="mimic_topic_findings",
+    #     group_by_length=True,
+    # )
