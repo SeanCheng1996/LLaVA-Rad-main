@@ -980,8 +980,8 @@ def train():
                            args=training_args,
                            **data_module)
 
-    for cur_batch in tqdm(trainer.get_train_dataloader(), total=len(trainer.get_train_dataloader())):
-        print(cur_batch.keys())
+    # for cur_batch in tqdm(trainer.get_train_dataloader(), total=len(trainer.get_train_dataloader())):
+    #     print(cur_batch.keys())
 
     # cur_batch = next(iter(trainer.get_train_dataloader()))
     # model = model.to("cuda")
@@ -1013,47 +1013,49 @@ def train():
 
 
 if __name__ == "__main__":
-    # import sys
-    #
-    # sys.argv = [
-    #     "train_forDebug.py",  # 脚本名（占位，通常会被忽略）
-    #     "--model_name_or_path", "lmsys/vicuna-7b-v1.5",
-    #     "--version", "v1",
-    #     "--data_path",
-    #     "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v2.json",  # todo
-    #     "--mask_path", "/data/sc159/data/MIMIC_III/segmentation_single",  # for_topic, parent folder of "/p10/123/11/a.pkl"
-    #     "--loader", "mimic_topic_findings",  # for_topic todo
-    #     "--image_folder", "/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
-    #     "--vision_tower", "biomedclip_cxr_518",
-    #     "--vision_tower_config",
-    #     "llava/model/multimodal_encoder/open_clip_encoder/model_configs/biomedclip_cxr_518.json",
-    #     "--vision_tower_checkpoint", "biomedclipcxr_518_checkpoint.pt",
-    #     "--mm_projector_type", "mlp2x_gelu",
-    #     "--tune_mm_mlp_adapter",
-    #     "--mm_vision_select_layer", "-2",
-    #     "--bf16",
-    #     "--output_dir", "./checkpoints/forDebug",  # 你可以在这里设置自定义输出目录
-    #     "--num_train_epochs", "1",  # 可调参数
-    #     "--per_device_train_batch_size", "2",  # 可调参数
-    #     "--per_device_eval_batch_size", "2",
-    #     "--gradient_accumulation_steps", "1",  # 可调参数
-    #     "--evaluation_strategy", "no",
-    #     "--save_strategy", "steps",
-    #     "--save_steps", "1",
-    #     "--save_total_limit", "1",
-    #     "--learning_rate", "1e-3",
-    #     "--weight_decay", "0.",
-    #     "--warmup_ratio", "0.03",
-    #     "--lr_scheduler_type", "cosine",
-    #     "--logging_steps", "1",
-    #     "--tf32", "True",
-    #     "--model_max_length", "2048",
-    #     "--gradient_checkpointing",
-    #     "--dataloader_num_workers", "2",
-    #     "--lazy_preprocess",
-    #     "--report_to", "wandb",
-    #     "--run_name", "your_run_name",  # 可以自定义
-    #     "--deepspeed", "/data/sc159/LLaVARad/scripts/zero2.json"
-    # ]
+    import sys
+
+    sys.argv = [
+        "train_forTopicSeg.py",  # 脚本名（占位，通常会被忽略）
+        "--model_name_or_path", "lmsys/vicuna-7b-v1.5",
+        "--lora_enable", "True",
+        "--lora_alpha", "128",
+        "--version", "v1",
+        "--data_path",
+        "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v3.json",  # todo
+        "--mask_path", "/data/sc159/data/MIMIC_III/segmentation_single",  # for_topic, parent folder of "/p10/123/11/a.pkl"
+        "--loader", "mimic_topic_reason_findings",  # for_topic todo
+        "--image_folder", "/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
+        "--vision_tower", "biomedclip_cxr_518",
+        "--vision_tower_config",
+        "llava/model/multimodal_encoder/open_clip_encoder/model_configs/biomedclip_cxr_518.json",
+        "--vision_tower_checkpoint", "biomedclipcxr_518_checkpoint.pt",
+        "--pretrain_mm_mlp_adapter", "/data/sc159/LLaVARad/checkpoints/topic_seg/llava_biomedclip_cxr_518-pt-1e-1e-3-20250710031958/mm_projector.bin",
+        "--mm_projector_type", "mlp2x_gelu",
+        "--mm_vision_select_layer", "-2",
+        "--bf16",
+        "--output_dir", "./checkpoints/forDebug",  # 你可以在这里设置自定义输出目录
+        "--num_train_epochs", "1",  # 可调参数
+        "--per_device_train_batch_size", "2",  # 可调参数
+        "--per_device_eval_batch_size", "2",
+        "--gradient_accumulation_steps", "1",  # 可调参数
+        "--evaluation_strategy", "no",
+        "--save_strategy", "steps",
+        "--save_steps", "1",
+        "--save_total_limit", "1",
+        "--learning_rate", "1e-3",
+        "--weight_decay", "0.",
+        "--warmup_ratio", "0.03",
+        "--lr_scheduler_type", "cosine",
+        "--logging_steps", "1",
+        "--tf32", "True",
+        "--model_max_length", "4096",
+        "--gradient_checkpointing",
+        "--dataloader_num_workers", "2",
+        "--lazy_preprocess",
+        "--report_to", "wandb",
+        "--run_name", "your_run_name",  # 可以自定义
+        "--deepspeed", "/data/sc159/LLaVARad/scripts/zero2.json"
+    ]
 
     train()
