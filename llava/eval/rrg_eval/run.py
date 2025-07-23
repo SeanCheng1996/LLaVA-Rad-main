@@ -1,6 +1,6 @@
 from typing import List
 import os
-import json 
+import json
 import random
 
 import evaluate
@@ -15,11 +15,11 @@ import rrg_eval.f1radgraph
 from rrg_eval.f1radgraph import F1RadGraphv2
 from rrg_eval.factuality_utils import CONDITIONS
 
-try:
-    import wandb
-except ImportError:
-    wandb = None
-
+# try:
+#     import wandb
+# except ImportError:
+#     wandb = None
+wandb = None
 
 random.seed(3)
 np.random.seed(3)
@@ -67,7 +67,7 @@ def radgraph(predictions, references, bootstrap_ci: bool = False):
             "median": np.median(bs.bootstrap_distribution),
             "ci_l": bs.confidence_interval.low,
             "ci_h": bs.confidence_interval.high,
-        } 
+        }
     else:
         return F1RadGraphv2(reward_level="partial", batch_size=1)(hyps=predictions, refs=references)[0]
 
@@ -91,24 +91,25 @@ class ReportGenerationEvaluator:
     def __init__(self, scorers=['CheXbert'], bootstrap_ci: bool = False):
         self.bootstrap_ci = bootstrap_ci
         self.scorers = {}
-        
+
         for scorer_name in scorers:
             if scorer_name in SCORER_NAME_TO_CLASS:
-                if scorer_name in SCORER_NAME_TO_CLASS: 
-                    self.scorers[scorer_name] = SCORER_NAME_TO_CLASS[scorer_name]  
+                if scorer_name in SCORER_NAME_TO_CLASS:
+                    self.scorers[scorer_name] = SCORER_NAME_TO_CLASS[scorer_name]
                 else:
                     raise NotImplementedError(f'scorer of type {scorer_name} not implemented')
 
     def evaluate(self, predictions, references):
-        assert len(predictions) == len(references), f'Length of predictions (i.e. generations) {len(predictions)} and references (i.e. ground truths) {len(references)} must match.'
-        
+        assert len(predictions) == len(
+            references), f'Length of predictions (i.e. generations) {len(predictions)} and references (i.e. ground truths) {len(references)} must match.'
+
         scores = {}
-        
+
         for scorer_name, scorer in (pbar := tqdm(self.scorers.items())):
             pbar.set_description(scorer_name)
             scorer_scores = scorer(predictions, references, self.bootstrap_ci)
             scores[scorer_name] = scorer_scores
-            
+
         self.postprocess_eval(scores)
         return scores
 
@@ -162,7 +163,7 @@ def test_evaluator():
         'The lungs are hyperexpanded with coarse bronchovascular markings in keeping with COPD. There is increased AP diameter and increased retrosternal airspace but the diaphragms have a near normal contour',
         'The lungs are hyperexpanded with coarse bronchovascular markings in keeping with COPD. There is increased AP diameter and increased retrosternal airspace but the diaphragms have a near normal contour'
     ]
-    
+
     evaluator = ReportGenerationEvaluator()
     print(evaluator.evaluate(generations, ground_truths))
 
@@ -176,7 +177,7 @@ def main(
         bootstrap_ci: bool = True,
         output_dir: str = "./",
         run_name: str = "mimic_cxr_eval",
-    ):
+):
     with open(filepath) as f:
         preds, refs = [], []
         for l in f:
@@ -195,14 +196,14 @@ def main(
 
     evaluator = ReportGenerationEvaluator(scorers=scorers, bootstrap_ci=bootstrap_ci)
     results = evaluator.evaluate(preds, refs)
-    
+
     print("\n")
     print(f"Total reports: {len(preds)}\n")
 
     print("========== Main Results ==========")
     if bootstrap_ci:
         main_results = pd.DataFrame.from_dict({
-            k:v for k,v in results.items() if k not in ("breakdown+", "breakdown-", "chexbert_metrics")
+            k: v for k, v in results.items() if k not in ("breakdown+", "breakdown-", "chexbert_metrics")
         })
         print(main_results[[
             "Micro-F1-14", "Micro-F1-5", "Macro-F1-14", "Macro-F1-5",
@@ -210,7 +211,7 @@ def main(
             "F1-RadGraph", "BLEU-1", "BLEU-4", "ROUGE-L"
         ]])
     else:
-        main_results = pd.DataFrame.from_dict({k:v for k,v in results.items() if type(v)!= dict}, 'index')
+        main_results = pd.DataFrame.from_dict({k: v for k, v in results.items() if type(v) != dict}, 'index')
         print(main_results.T[[
             "Micro-F1-14", "Micro-F1-5", "Macro-F1-14", "Macro-F1-5",
             "Micro-F1-14+", "Micro-F1-5+", "Macro-F1-14+", "Macro-F1-5+",
@@ -232,18 +233,18 @@ def main(
 
         wandb.init(name=run_name)
         wandb.log(wandb_results)
-    
+
     print("========== CheXbert F1 (uncertain as positive) ==========")
     breakdown_p = pd.DataFrame(results["breakdown+"])[sorted(CONDITIONS) + ["micro avg", "macro avg"]].T[
-        ['f1-score','precision','recall','support']
+        ['f1-score', 'precision', 'recall', 'support']
     ]
     print(breakdown_p)
     print("")
     breakdown_p.to_csv(os.path.join(output_dir, "breakdown_p.csv"))
-    
+
     print("========== CheXbert F1 (uncertain as negative) ==========")
     breakdown_n = pd.DataFrame(results["breakdown-"])[sorted(CONDITIONS) + ["micro avg", "macro avg"]].T[
-        ['f1-score','precision','recall','support']
+        ['f1-score', 'precision', 'recall', 'support']
     ]
     print(breakdown_n)
     print("")
@@ -256,8 +257,9 @@ def main(
         ]
         print(chexbert_df)
         print("")
-    
+
 
 if __name__ == "__main__":
     import fire
+
     fire.Fire(main)
