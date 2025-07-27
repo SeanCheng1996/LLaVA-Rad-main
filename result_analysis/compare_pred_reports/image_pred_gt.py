@@ -33,7 +33,8 @@ def load_query_json(file_path):
 
 def show_eg(gt_preds_json_list, id_image_json, json_ix,
             img_folder="/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
-            mask_folder="/data/sc159/data/MIMIC_III/segmentation_single"):
+            mask_folder="/data/sc159/data/MIMIC_III/segmentation_single",
+            saveFlag=False):
     cur_json = gt_preds_json_list[json_ix]
     id, gt, pred = cur_json['id'], cur_json['reference'], cur_json['prediction']
     """
@@ -65,15 +66,18 @@ def show_eg(gt_preds_json_list, id_image_json, json_ix,
         masked_img_array = img_array * mask_resized[:, :, np.newaxis]  # Broadcast mask over RGB channels
         masked_img = Image.fromarray(masked_img_array)
 
+        if saveFlag:
+            masked_img.save(f"/data/sc159/LLaVARad/result_analysis/temp/{cur_organ}_{id}.png", 'PNG')
+            image.save(f"/data/sc159/LLaVARad/result_analysis/temp/{id}.png", 'PNG')
         # put under the to-show json
         organ_maskedImg_json[cur_organ] = masked_img
     """
     show
     """
-    plot_images(image, organ_maskedImg_json, gt, pred)
+    plot_images(image, organ_maskedImg_json, gt, pred, id)
 
 
-def plot_images(image, organ_maskedImg_json, gt, pred):
+def plot_images(image, organ_maskedImg_json, gt, pred, id):
     gt=gt.replace(". ", ".\n")
     gt="gt\n"+gt
     pred = pred.replace(". ", ".\n")
@@ -89,7 +93,7 @@ def plot_images(image, organ_maskedImg_json, gt, pred):
     # 第一行第一列：原始图像
     ax = fig.add_subplot(gs[0, 0])
     ax.imshow(image)
-    ax.set_title('Original Image', fontsize=30)
+    ax.set_title(f'Original Image\n{id}', fontsize=30)
     ax.axis('off')
 
     # 显示器官分割图像
@@ -130,9 +134,18 @@ def plot_images(image, organ_maskedImg_json, gt, pred):
 
 if __name__ == '__main__':
     gt_preds_json_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_MIMIC_onlyMLP/test_merged.jsonl"
-    query_json_file = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v3.json"
+    query_json_file = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v4.json"
     gt_preds_json_list = load_gt_preds_json(gt_preds_json_file)
     id_image_json = load_query_json(query_json_file)
     np.random.seed(42)
-    for json_ix in np.random.choice(len(gt_preds_json_list), 10):
-        show_eg(gt_preds_json_list, id_image_json, json_ix=json_ix)
+
+    # random show egs
+    # for json_ix in np.random.choice(len(gt_preds_json_list), 20):
+    #     show_eg(gt_preds_json_list, id_image_json, json_ix=json_ix)
+
+    # specific egs
+    id="10046166_51738740"
+    for json_ix in range(len(gt_preds_json_list)):
+        if gt_preds_json_list[json_ix]['id'] != id:
+            continue
+        show_eg(gt_preds_json_list, id_image_json, json_ix=json_ix, saveFlag=True)
