@@ -44,36 +44,28 @@ def extractReport(file_path):
 
 
 if __name__ == '__main__':
-    # file_path = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v3.json"
-    # save_path = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v4.json"
-    #
-    # # stats how many repeated topics
-    # res = []
-    # visited_id_topics_json = {}  # {id: set(topics), ...}
-    # with open(file_path, 'r') as f:
-    #     ori_res = json.load(f)
-    #     print(f"previous len: {len(ori_res)}")
-    #
-    #     for report in ori_res:
-    #         id = report['id']
-    #         topic = report['topic']
-    #         if id in visited_id_topics_json and topic in visited_id_topics_json[id]:  # repeated
-    #             continue
-    #         else:  # new
-    #             if id not in visited_id_topics_json:
-    #                 visited_id_topics_json[id] = set()
-    #             visited_id_topics_json[id].add(topic)
-    #             res.append(report)
-    #
-    #
-    # print(f"current len: {len(res)}")
-    # with open(save_path, 'w') as f:
-    #     json.dump(res, f, indent=2)
+    file_path = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v3.json"
+    save_path = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v4.json"
 
-    ids=set()
-    with open("/data/sc159/data/MIMIC_III/llava_rad/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v1.json", 'r') as f:
-        res=json.load(f)
-        for report in res:
-            if report['view'] in ["AP", "PA"] and report['generate_method']=='gpt4':
-                ids.add(report['image'])
-        print(len(ids))
+    # stats how many repeated topics
+    res = []
+    visited_id_topics_json = {}  # {id: set(topics), ...}
+    with open(file_path, 'r') as f:
+        ori_res = json.load(f)
+        print(f"previous len: {len(ori_res)}")
+
+        for report in ori_res:
+            id = report['id']
+            topic = report['topic']
+            if id in visited_id_topics_json and topic in visited_id_topics_json[id]:  # repeated
+                continue
+            else:  # new
+                if id not in visited_id_topics_json:
+                    visited_id_topics_json[id] = set()
+                visited_id_topics_json[id].add(topic)
+                res.append(report)
+
+
+    print(f"current len: {len(res)}")
+    with open(save_path, 'w') as f:
+        json.dump(res, f, indent=2)
