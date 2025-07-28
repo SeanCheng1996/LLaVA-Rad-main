@@ -136,7 +136,7 @@ def eval_model(
             if "all" in mask_labels:
                 masked_img = image
             else:
-                mask_json = os.path.join(mask_path, query["image"]).replace('.jpg', '.pkl')
+                mask_json = os.path.join(mask_path, query["image"]).replace('.jpg', '.pkl').replace(".png", ".pkl")
                 with open(mask_json, 'rb') as f:
                     mask_json = pickle.load(f)  # {"$organ": np.array, bool,512*512, ...}
                 # get mask for specific organs
