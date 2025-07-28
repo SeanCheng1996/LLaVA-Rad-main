@@ -6,6 +6,7 @@ for batch_input_file_id_path in glob(
         "/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/test*_batch_file_id.txt"):
     # for batch_input_file_id_path in glob("/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/*_batch_file_id.txt"):
     # batch_input_file_id_path = "/data/sc159/LLaVARad/MyData/ReportProcess/organ_labels/prompts/valid_prompts_1000_2000_batch_file_id.txt"
+# batch_input_file_id_path = "/data/sc159/data/IU_Xray_raw/processed/chexpert_organ_labels/prompts/all_prompts_0_5000_batch_file_id.txt"
 
     if os.path.exists(batch_input_file_id_path.replace("batch_file_id.txt", "response.jsonl")):
         continue

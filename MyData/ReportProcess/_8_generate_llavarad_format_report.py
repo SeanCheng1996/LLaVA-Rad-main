@@ -36,13 +36,23 @@ def get_ori_id_report_json(file_path):
 
     ori_res = {}
     for item in original_data:
-        if item.get("generate_method") == "gpt4" and item.get("view") in ["AP", "PA"]:
-            item_id = item["id"]
-            item_imagePath = item["image"]
-            item_newId = f"{item_id}|{item_imagePath}"
-            if item_newId in ori_res:
-                raise ValueError(f"Duplicate ID found in original data: {item_newId}")
-            ori_res[item_newId] = item
+        if "IU_Xray" in file_path:
+            if item.get("generate_method") == "raw" and item.get("view") in ["Frontal"]:
+                item_id = item["id"]
+                item_imagePath = item["image"]
+                item_newId = f"{item_id}|{item_imagePath}"
+                if item_newId in ori_res:
+                    raise ValueError(f"Duplicate ID found in original data: {item_newId}")
+                ori_res[item_newId] = item
+        else: # MIMIC
+            if item.get("generate_method") == "gpt4" and item.get("view") in ["AP", "PA"]:
+                item_id = item["id"]
+                item_imagePath = item["image"]
+                item_newId = f"{item_id}|{item_imagePath}"
+                if item_newId in ori_res:
+                    raise ValueError(f"Duplicate ID found in original data: {item_newId}")
+                ori_res[item_newId] = item
+
 
     return ori_res
 
@@ -178,11 +188,11 @@ def generate_json_list_for_one_ori_item(original_item, topic_reports):
 
 
 if __name__ == '__main__':
-    split = "valid"
-    ori_path_file = f"/data/sc159/data/MIMIC_III/llava_rad/chat_{split}_MIMIC_CXR_all_gpt4extract_rulebased_v1.json"
+    split = "all"
+    ori_path_file = f"/data/sc159/data/IU_Xray_raw/processed/all_llavarad_format.json"
     topic_file_paths = glob(
-        f"/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/{split}_*_response.jsonl")
-    save_file_path = f"/data/sc159/data/MIMIC_III/llava_rad_topic/chat_{split}_MIMIC_CXR_all_gpt4extract_rulebased_v1.json"
+        f"/data/sc159/data/IU_Xray_raw/processed/chexpert_organ_labels/prompts/all_prompts_0_5000_response.jsonl")
+    save_file_path = f"/data/sc159/data/IU_Xray_raw/processed/llava_rad_topic/all_llavarad_format.json"
 
     # load ori report
     ori_res = get_ori_id_report_json(ori_path_file)

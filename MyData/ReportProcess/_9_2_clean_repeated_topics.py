@@ -44,8 +44,8 @@ def extractReport(file_path):
 
 
 if __name__ == '__main__':
-    file_path = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v3.json"
-    save_path = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v4.json"
+    file_path = "/data/sc159/data/IU_Xray_raw/processed/llava_rad_topic/all_llavarad_format_v1.json"
+    save_path = "/data/sc159/data/IU_Xray_raw/processed/llava_rad_topic/all_llavarad_format_v2.json"
 
     # stats how many repeated topics
     res = []

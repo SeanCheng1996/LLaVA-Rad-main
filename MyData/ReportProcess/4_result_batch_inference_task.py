@@ -24,32 +24,34 @@ def download_file(url, save_path):
 
 
 if __name__ == '__main__':
-    for batch_id_path in glob("/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/test*_batch_batch_id.txt"):
-    # batch_id_path = "/data/sc159/LLaVARad/MyData/ReportProcess/organ_labels/prompts/valid_prompts_1000_2000_batch_batch_id.txt"
-        print("=" * 10)
-        print(batch_id_path)
-
-        with open(batch_id_path, 'r') as f:
-            content = f.readline().strip()
-            start = content.find("id='") + 4
-            end = content.find("'", start)
-            batch_id = content[start:end]
-        print(batch_id)
-
-        client = OpenAI(
-            api_key="sk-mfsoglkmixpwsdirmpwetxphavpespdrihkapsuueifntnet",
-            base_url="https://api.siliconflow.cn/v1"
-        )
-
-        batch = client.batches.retrieve(batch_id)
-        print(batch)
+    # for batch_id_path in glob("/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/prompts/test*_batch_batch_id.txt"):
+    batch_id_path = "/data/sc159/data/IU_Xray_raw/processed/chexpert_organ_labels/prompts/all_prompts_0_5000_batch_batch_id.txt"
 
 
-        if batch.status == 'completed':
-            print("downloading")
-            download_file(batch.output_file_id, batch_id_path.replace("batch_batch_id.txt", "response.jsonl"))
-        else:
-            print("Not finished, status:", batch.status)
+    print("=" * 10)
+    print(batch_id_path)
 
-        # time.sleep(1)
+    with open(batch_id_path, 'r') as f:
+        content = f.readline().strip()
+        start = content.find("id='") + 4
+        end = content.find("'", start)
+        batch_id = content[start:end]
+    print(batch_id)
+
+    client = OpenAI(
+        api_key="sk-mfsoglkmixpwsdirmpwetxphavpespdrihkapsuueifntnet",
+        base_url="https://api.siliconflow.cn/v1"
+    )
+
+    batch = client.batches.retrieve(batch_id)
+    print(batch)
+
+
+    if batch.status == 'completed':
+        print("downloading")
+        download_file(batch.output_file_id, batch_id_path.replace("batch_batch_id.txt", "response.jsonl"))
+    else:
+        print("Not finished, status:", batch.status)
+
+    # time.sleep(1)
 

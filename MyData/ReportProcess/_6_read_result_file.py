@@ -71,5 +71,5 @@ def extract_response_file(file_path):
 
 if __name__ == '__main__':
     responses = extract_response_file(
-        "/data/sc159/LLaVARad/MyData/ReportProcess/chexpert_organ_labels/re_for_bad_response/train_prompts_bad_0_5000_response.jsonl")
+        "/data/sc159/data/IU_Xray_raw/processed/chexpert_organ_labels/prompts/all_prompts_0_5000_response.jsonl")
     print(responses)

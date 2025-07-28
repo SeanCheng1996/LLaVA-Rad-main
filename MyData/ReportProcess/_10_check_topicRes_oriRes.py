@@ -58,13 +58,13 @@ def get_my_id_report_json(file_path):
 
 if __name__ == '__main__':
 
-    my_res_path = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json"
-    ori_res_path = "/data/sc159/data/MIMIC_III/llava_rad/chat_train_MIMIC_CXR_all_gpt4extract_rulebased_v1.json"
+    my_res_path = "/data/sc159/data/IU_Xray_raw/processed/llava_rad_topic/all_llavarad_format_v2.json"
+    ori_res_path = "/data/sc159/data/IU_Xray_raw/processed/all_llavarad_format.json"
 
     ori_res = get_ori_id_report_json(ori_res_path)
     my_res = get_my_id_report_json(my_res_path)
 
-    with open("/data/sc159/data/MIMIC_III/llava_rad_topic/train_sanity_check.txt", 'w') as f:
+    with open("/data/sc159/data/IU_Xray_raw/processed/llava_rad_topic/train_sanity_check.txt", 'w') as f:
         for newID, report in tqdm(ori_res.items()):
             if newID not in my_res:
                 print("-" * 20, file=f)
