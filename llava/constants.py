@@ -45,4 +45,4 @@ ORGAN_MASK_MAPPING = {
 BAD_IMAGE_PATHS = "/data/sc159/data/MIMIC_III/segmentation_single/bad_image_path.txt" #todo, sirius
 # BAD_IMAGE_PATHS = "/work/devika/data/MIMIC_III/MIMIC_III/segmentation_single/bad_image_path.txt"  # todo, rapid
 
-IUXRAY_BAD_IMAGE_PATHS="/work/devika/data/IU_Xray_raw/images/bad_image_path.txt"
+IUXRAY_BAD_IMAGE_PATHS="/data/sc159/data/IU_Xray_raw/images/bad_image_path.txt"

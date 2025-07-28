@@ -54,10 +54,10 @@ def process_jsonl_files(input_files, output_file):
 if __name__ == "__main__":
     # Replace with your actual list of .jsonl files
     input_files = [
-        "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray/test_0.jsonl",
-        "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray/test_1.jsonl",
-        "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray/test_2.jsonl",
-        "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray/test_3.jsonl"
+        "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray_onlyMLP/test_0.jsonl",
+        "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray_onlyMLP/test_1.jsonl",
+        "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray_onlyMLP/test_2.jsonl",
+        "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray_onlyMLP/test_3.jsonl"
     ]
-    output_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray/test_merged.jsonl"
+    output_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray_onlyMLP/test_merged.jsonl"
     process_jsonl_files(input_files, output_file)
