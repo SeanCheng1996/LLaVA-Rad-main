@@ -98,25 +98,11 @@ def eval_model(
     tokenizer, model, image_processor, context_len = load_pretrained_model(
         model_path, model_base, model_name, load_8bit, load_4bit, device=device)
 
-    # # load data
-    # all_queries = data_loaders[loader](query_file)
-    # if group_by_length:
-    #     all_queries = sorted(all_queries, key=lambda x: len(tokenizer(x["conversations"][0]['value']).input_ids))
-    # queries = get_chunk(all_queries, num_chunks, chunk_idx)
-    # logger.info(f"Loaded {len(queries)} / {len(all_queries)} ({chunk_idx}:{num_chunks}) examples.")
-    #
-    # os.makedirs(os.path.dirname(prediction_file), exist_ok=True)
-    # batches = create_batches(queries, batch_size, group_by_length, tokenizer)
-    # for batch_queries in tqdm(batches):
-    #
-    #     for query in batch_queries:
-
     all_queries = data_loaders[loader](query_file)
-
 
     for query_index in range(len(all_queries)):
 
-        query=all_queries[query_index]
+        query = all_queries[query_index]
         if query['topic'] == 'other':
             continue
 
@@ -125,12 +111,6 @@ def eval_model(
         batch_images = []
 
         q = query["conversations"][0]["value"]
-
-        # q = q.replace("<image>", "").strip()
-        # if model.config.mm_use_im_start_end:
-        #     q = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + '\n' + q
-        # else:
-        #     q = DEFAULT_IMAGE_TOKEN + '\n' + q
 
         conv = conv_templates[conv_mode].copy()
         conv.append_message(conv.roles[0], q)
@@ -196,52 +176,62 @@ def eval_model(
             image_token_pos = (input_ids == image_token_id).nonzero(as_tuple=True)[0]
 
             # Loop over generated tokens
-            for i, token_id in enumerate(generated_ids[0][input_ids.shape[0]:]):  # Only new tokens
-                word = tokenizer.decode([token_id])
-                word_clean = word.strip().replace(" ", "_").replace("/", "_").replace("\\", "_")
+            for layer_index in [-2, 0, 10, 20, -1]:
+                for i, token_id in enumerate(generated_ids[0][input_ids.shape[0]:]):  # Only new tokens
+                    word = tokenizer.decode([token_id])
+                    word_clean = word.strip().replace(" ", "_").replace("/", "_").replace("\\", "_")
 
-                # Get last layer attention for current token
-                step_attention = attentions[i]  # tuple of num_layers
-                last_layer = step_attention[20]  # shape: [B, num_heads, T, T]
-                attn = last_layer[0, :, -1, :]  # [num_heads, total_seq_len], attention from current word to all tokens
-                attn_mean = attn.mean(dim=0)  # [total_seq_len]
+                    # Get last layer attention for current token
+                    step_attention = attentions[i]  # tuple of num_layers
+                    if layer_index != -2:
+                        cur_layer = step_attention[layer_index].detach().cpu().numpy()  # [B, num_heads, T, T]
+                    else:
+                        cur_layer = torch.stack(
+                            step_attention).detach().cpu().numpy()  # [num_layers, B, num_heads, T, T]
+                        cur_layer = cur_layer.max(axis=0)  # NumPy max over layers → [B, num_heads, T, T]
+                    attn = cur_layer[0, :, -1,
+                           :]  # [num_heads, total_seq_len], attention from current word to all tokens
+                    attn_mean = attn.max(axis=0) # [total_seq_len]
 
-                # Get attention to image patches only
-                attn_image1 = attn_mean[
-                              image_token_pos[0].item(): image_token_pos[0].item() + num_image_tokens].detach().cpu().numpy()
-                attn_image2 = attn_mean[
-                              image_token_pos[1].item() + num_image_tokens - 1: image_token_pos[1].item() + 2 * num_image_tokens - 1].detach().cpu().numpy()
+                    # Get attention to image patches only
+                    attn_image1 = attn_mean[
+                                  image_token_pos[0].item(): image_token_pos[
+                                                                 0].item() + num_image_tokens]
+                    attn_image2 = attn_mean[
+                                  image_token_pos[1].item() + num_image_tokens - 1: image_token_pos[
+                                                                                        1].item() + 2 * num_image_tokens - 1]
 
-                # Plot
-                fig, axs = plt.subplots(2, 2, figsize=(8, 8))
-                axs[0, 0].imshow(image)
-                axs[0, 0].set_title("Original Image 1")
-                axs[0, 0].axis('off')
+                    # Plot
+                    fig, axs = plt.subplots(2, 2, figsize=(8, 8))
+                    axs[0, 0].imshow(image)
+                    axs[0, 0].set_title("Original Image 1")
+                    axs[0, 0].axis('off')
 
-                axs[0, 1].imshow(image)
-                attn_image1 = attn_image1.reshape(37, 37)
-                attn_image1 = cv2.resize(attn_image1.astype(np.float32), (image.size[0], image.size[1]))
-                axs[0,1].imshow(attn_image1, cmap="jet", alpha=0.5)
-                axs[0, 1].set_title("Attn on Image 1")
-                axs[0, 1].axis('off')
+                    axs[0, 1].imshow(image)
+                    attn_image1 = attn_image1.reshape(37, 37)
+                    attn_image1 = cv2.resize(attn_image1.astype(np.float32), (image.size[0], image.size[1]))
+                    axs[0, 1].imshow(attn_image1, cmap="jet", alpha=0.5)
+                    axs[0, 1].set_title("Attn on Image 1")
+                    axs[0, 1].axis('off')
 
-                axs[1, 0].imshow(masked_img)
-                axs[1, 0].set_title("Original Image 2")
-                axs[1, 0].axis('off')
+                    axs[1, 0].imshow(masked_img)
+                    axs[1, 0].set_title("Original Image 2")
+                    axs[1, 0].axis('off')
 
-                axs[1, 1].imshow(masked_img)
-                attn_image2 = attn_image2.reshape(37, 37)
-                attn_image2 = cv2.resize(attn_image2.astype(np.float32), (masked_img.size[0], masked_img.size[1]))
-                axs[1, 1].imshow(attn_image2, cmap="jet", alpha=0.5)
-                axs[1, 1].set_title("Attn on Image 2")
-                axs[1, 1].axis('off')
+                    axs[1, 1].imshow(masked_img)
+                    attn_image2 = attn_image2.reshape(37, 37)
+                    attn_image2 = cv2.resize(attn_image2.astype(np.float32), (masked_img.size[0], masked_img.size[1]))
+                    axs[1, 1].imshow(attn_image2, cmap="jet", alpha=0.5)
+                    axs[1, 1].set_title("Attn on Image 2")
+                    axs[1, 1].axis('off')
 
-                plt.tight_layout()
-                save_path = os.path.join(f"/data/sc159/LLaVARad/results/topic_seg/temp/{query_index}", f"{i:03d}_{word_clean}.png")
-                os.makedirs(os.path.dirname(save_path), exist_ok=True)
-                plt.savefig(save_path)
-                plt.show()
-                plt.close(fig)
+                    plt.tight_layout()
+                    save_path = os.path.join(f"/data/sc159/LLaVARad/results/topic_seg/temp/{query_index}/{layer_index}",
+                                             f"{i:03d}_{word_clean}.png")
+                    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                    plt.savefig(save_path)
+                    plt.show()
+                    plt.close(fig)
 
 
 if __name__ == "__main__":
