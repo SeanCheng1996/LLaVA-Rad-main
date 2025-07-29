@@ -169,6 +169,11 @@ def eval_model(
             generated_ids = outputs.sequences
             attentions = outputs.attentions
 
+            # filter out
+            pred_sents = tokenizer.decode(generated_ids[0][input_ids.shape[0]:])
+            if "absent" in pred_sents:
+                continue
+
             # Get position of <image> token (id = -200 in your case)
             num_image_tokens = 1369
             image_token_id = -200
