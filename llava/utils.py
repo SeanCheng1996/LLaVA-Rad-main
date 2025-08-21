@@ -173,7 +173,9 @@ def data_loader_mimic_reason_findings(data_path, split):
         dataset = json.load(f)
     ret = []
     for d in dataset:
-        if split == 'test' and d['generate_method'] != 'rule-based':
+        # if split == 'test' and d['generate_method'] != 'rule-based':
+        #     continue
+        if split == 'test' and d['generate_method'] != 'gpt4':
             continue
         # Skip empty findings
         if not isinstance(d["conversations"][1]["value"], str):
@@ -220,6 +222,7 @@ def data_loader_mimic_topic_findings(data_path, split):
         ret.append(d)
     logging.info(f"loaded {len(ret)}/{len(dataset)} samples. from utils")
     return ret
+
 
 def data_loader_mimic_topic_reason_findings(data_path, split):
     logging.info(f"using the MIMIC-CXR topic finding loader: MIMIC {split}.")
@@ -270,6 +273,7 @@ def data_loader_IUXRay_findings(data_path, split):
     logging.info(f"loaded {len(ret)}/{len(dataset)} samples.")
     return ret
 
+
 def data_loader_IUXRay_topic_findings(data_path, split):
     logging.info(f"using the MIMIC-CXR topic finding loader: MIMIC {split}.")
     with open(data_path) as f:
@@ -295,6 +299,7 @@ def data_loader_IUXRay_topic_findings(data_path, split):
         ret.append(d)
     logging.info(f"loaded {len(ret)}/{len(dataset)} samples. from utils")
     return ret
+
 
 def data_loader_IUXRay_topic_reason_findings(data_path, split):
     logging.info(f"using the MIMIC-CXR topic finding loader: MIMIC {split}.")

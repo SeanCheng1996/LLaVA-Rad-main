@@ -53,7 +53,7 @@ def process_jsonl_files(concated_topic_gt_pred_file, ori_report_file, output_fil
 # Example usage
 if __name__ == "__main__":
     # Replace with your actual list of .jsonl files
-    concated_topic_gt_pred_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray_onlyMLP/test_merged.jsonl"
-    ori_report_file = "/data/sc159/data/IU_Xray_raw/processed/llava_rad_topic/all_llavarad_format_v2.json"
-    output_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray_onlyMLP/oriReport_predTopic.jsonl"
+    concated_topic_gt_pred_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray/test_merged.jsonl"
+    ori_report_file = "/data/sc159/data/IU_Xray_raw/processed/llava_rad_topic/all_llavarad_format_v4.json"
+    output_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray/oriReport_predTopic.jsonl"
     process_jsonl_files(concated_topic_gt_pred_file, ori_report_file, output_file)

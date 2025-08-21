@@ -5,10 +5,17 @@ This code is to generate another jsonl w.r.t. each report from the predction fil
 
 Output: a jsonl. Each json: { id:"", reference: "", prediction: "", rougeL: ""}
 """
+
 import json
-import pandas as pd
+
 import evaluate
+import pandas as pd
 from tqdm import tqdm
+
+import rrg_eval.chexbert
+import rrg_eval.f1radgraph
+import rrg_eval.rouge
+
 
 def load_pred_json(file_path):
     ids, preds, refs = [], [], []
@@ -29,8 +36,8 @@ def generate_row_scores(ids, preds, refs, output_file):
         score = scorer.compute(predictions=[pred], references=[ref])["rougeL"]
         data.append({
             "id": id,
-            "prediction": pred,
             "reference": ref,
+            "prediction": pred,
             "rougeL": score
         })
 
@@ -41,12 +48,14 @@ def generate_row_scores(ids, preds, refs, output_file):
 
 def main(pred_file, output_file):
     ids, preds, refs = load_pred_json(pred_file)
+
     generate_row_scores(ids, preds, refs, output_file)
+
     print(f"File saved at {output_file}")
 
 
 if __name__ == '__main__':
-    pred_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_MIMIC/test_merged.jsonl"
-    output_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_MIMIC/merged/row_scores.csv"
+    pred_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray/oriReport_predTopic.jsonl"
+    output_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_IUXray/oriReport_predTopic/row_scores.csv"
 
     main(pred_file, output_file)

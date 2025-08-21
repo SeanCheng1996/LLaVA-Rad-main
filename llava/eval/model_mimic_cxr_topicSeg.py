@@ -208,7 +208,7 @@ def eval_model(
 if __name__ == "__main__":
     fire.Fire(eval_model)
     # eval_model(
-    #     query_file="/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v3.json",
+    #     query_file="/data/sc159/data/IU_Xray_raw/processed/llava_rad_topic/all_llavarad_format_v2.json",
     #     image_folder="/data/sc159/data/MIMIC_III/physionet.org/files/mimic-cxr-jpg/2.0.0/files",
     #     mask_path="/data/sc159/data/MIMIC_III/segmentation_single",
     #     conv_mode="v1",

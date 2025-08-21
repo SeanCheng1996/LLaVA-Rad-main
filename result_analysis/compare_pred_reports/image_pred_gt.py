@@ -133,7 +133,7 @@ def plot_images(image, organ_maskedImg_json, gt, pred, id):
 
 
 if __name__ == '__main__':
-    gt_preds_json_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_MIMIC_onlyMLP/test_merged.jsonl"
+    gt_preds_json_file = "/data/sc159/LLaVARad/results/topic_seg/llavarad_MIMIC/test_merged.jsonl"
     query_json_file = "/data/sc159/data/MIMIC_III/llava_rad_topic/chat_test_MIMIC_CXR_all_gpt4extract_rulebased_v4.json"
     gt_preds_json_list = load_gt_preds_json(gt_preds_json_file)
     id_image_json = load_query_json(query_json_file)
@@ -144,7 +144,7 @@ if __name__ == '__main__':
     #     show_eg(gt_preds_json_list, id_image_json, json_ix=json_ix)
 
     # specific egs
-    id="10046166_51738740"
+    id="11880923_51034232"
     for json_ix in range(len(gt_preds_json_list)):
         if gt_preds_json_list[json_ix]['id'] != id:
             continue

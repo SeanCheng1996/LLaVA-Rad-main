@@ -10,7 +10,7 @@ model_path=/data/sc159/LLaVARad/checkpoints/llavarad_biomedclip_cxr_518-lora-3e-
 model_base="${1:-$model_base}"
 model_path="${2:-$model_path}"
 prediction_dir="${3:-results/ori_llavarad/llavarad_MIMIC}"
-prediction_file=$prediction_dir/test
+prediction_file=$prediction_dir/test_gpt
 
 run_name="${4:-llavarad}"
 
