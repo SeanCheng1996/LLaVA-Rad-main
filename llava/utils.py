@@ -223,6 +223,33 @@ def data_loader_mimic_topic_findings(data_path, split):
     logging.info(f"loaded {len(ret)}/{len(dataset)} samples. from utils")
     return ret
 
+def data_loader_mimic_topic_withoutSeg_findings(data_path, split):
+    logging.info(f"using the MIMIC-CXR topic finding loader: MIMIC {split}.")
+    with open(data_path) as f:
+        dataset = json.load(f)
+    with open(BAD_IMAGE_PATHS, 'r') as f:
+        bad_image_paths = set(line.strip() for line in f)
+    ret = []
+    for d in dataset:
+        # Skip empty topic findings
+        if not isinstance(d["conversations"][2]["value"], str):
+            continue
+        if d['view'] not in ('AP', 'PA'):
+            continue
+        if d['image'] in bad_image_paths:
+            print(f"ignoring {d['image']}")
+            continue
+        if d['image'].startswith("mimic/"):
+            d['image'] = d['image'][len('mimic/'):]
+        d['conversations'][0][
+            'value'] = f"Given the image <image>\nProvide a description of the findings in the radiology image for the following organs or diseases: {d['topic']}."
+        # move "tpoic_based" under "gpt" to align with other code, then delete "topic_based"
+        d['conversations'][1]['value'] = d['conversations'][2]['value']
+        d['conversations'] = d['conversations'][:2]
+
+        ret.append(d)
+    logging.info(f"loaded {len(ret)}/{len(dataset)} samples. from utils")
+    return ret
 
 def data_loader_mimic_topic_reason_findings(data_path, split):
     logging.info(f"using the MIMIC-CXR topic finding loader: MIMIC {split}.")
@@ -344,4 +371,6 @@ data_loaders = {
     "iuxray_test_topic_reason_findings": lambda x: data_loader_IUXRay_topic_reason_findings(x, "test"),
     "mimic_topic_findings": lambda x: data_loader_mimic_topic_findings(x, "train"),
     "mimic_topic_reason_findings": lambda x: data_loader_mimic_topic_reason_findings(x, "train"),
+    "mimic_topic_withoutSeg_findings": lambda x: data_loader_mimic_topic_withoutSeg_findings(x, "train"),
+
 }
