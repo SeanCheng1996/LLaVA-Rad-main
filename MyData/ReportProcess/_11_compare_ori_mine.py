@@ -89,20 +89,20 @@ if __name__ == '__main__':
 
     # show ids from a list
     # with open('/data/sc159/LLaVARad/MyData/ReportProcess/low_ids.txt', 'r') as file:
-    with open('/data/sc159/folders.txt', 'r') as file:
-        picked_ids = {line.strip().split("|")[-1] for line in file}
-    for id in picked_ids:
-        print("=" * 60)
-        print(f"id:{id}")
-        ori_report = processed_id_report_json[id]['ori'].replace('. ', '.\n    ')
-        # print(f"ori:\n    {ori_report}")
-        print(f"processed:")
-        for topic, topic_sents in zip(processed_id_report_json[id]['topics'],
-                                      processed_id_report_json[id]['topic_sents']):
-            print(f"  {topic}")
-            print(f"    -{topic_sents}")
-        print("prediction:")
-        print(f"  {id_pred_json[id]['prediction']}")
+    # with open('/data/sc159/folders.txt', 'r') as file:
+    #     picked_ids = {line.strip().split("|")[-1] for line in file}
+    # for id in picked_ids:
+    #     print("=" * 60)
+    #     print(f"id:{id}")
+    #     ori_report = processed_id_report_json[id]['ori'].replace('. ', '.\n    ')
+    #     # print(f"ori:\n    {ori_report}")
+    #     print(f"processed:")
+    #     for topic, topic_sents in zip(processed_id_report_json[id]['topics'],
+    #                                   processed_id_report_json[id]['topic_sents']):
+    #         print(f"  {topic}")
+    #         print(f"    -{topic_sents}")
+    #     print("prediction:")
+    #     print(f"  {id_pred_json[id]['prediction']}")
 
     # show specific id
     # id="17398573_51909919"
@@ -116,28 +116,28 @@ if __name__ == '__main__':
     #     print(f"  {topic}")
     #     print(f"    -{topic_sents}")
 
-    # # stats how many repeated topics
-    # diff_cnts = []
-    # for id in tqdm(list(processed_id_report_json.keys())):
-    #     topics_list = processed_id_report_json[id]['topics']
-    #     diff = len(topics_list) - len(set(topics_list))
-    #     if diff > 0:
-    #         diff_cnts.append(diff)
-    #         print("*" * 60)
-    #         print(id)
-    #         for i in range(len(topics_list)):
-    #             print(f"{topics_list[i]}:     {processed_id_report_json[id]['topic_sents'][i]}")
-    #
-    # counts = Counter(diff_cnts)
-    # numbers = list(counts.keys())
-    # frequencies = list(counts.values())
-    #
-    # plt.bar(numbers, frequencies, color='skyblue')
-    #
-    # plt.title(f'Redundant topics frequency. {len(diff_cnts)}')
-    # plt.xlabel('#Redundant topics')
-    # plt.ylabel('Frequency')
-    # plt.show()
+    # stats how many repeated topics
+    diff_cnts = []
+    for id in tqdm(list(processed_id_report_json.keys())):
+        topics_list = processed_id_report_json[id]['topics']
+        diff = len(topics_list) - len(set(topics_list))
+        if diff > 0:
+            diff_cnts.append(diff)
+            print("*" * 60)
+            print(id)
+            for i in range(len(topics_list)):
+                print(f"{topics_list[i]}:     {processed_id_report_json[id]['topic_sents'][i]}")
+
+    counts = Counter(diff_cnts)
+    numbers = list(counts.keys())
+    frequencies = list(counts.values())
+
+    plt.bar(numbers, frequencies, color='skyblue')
+
+    plt.title(f'Redundant topics frequency. {len(diff_cnts)}')
+    plt.xlabel('#Redundant topics')
+    plt.ylabel('Frequency')
+    plt.show()
 
     # # generate a jsonl in the format of prediction, so that the evaluate code can be applied on the processed reports.
     # with open("/data/sc159/data/MIMIC_III/llava_rad_topic/evaluate/llavarad_vs_topic.jsonl", 'w',
